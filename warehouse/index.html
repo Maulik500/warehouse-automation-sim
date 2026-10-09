@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integrated warehouse · ASRS · robot AMRs · palletizers · wrapper · forklifts</title>
+<style>
+  :root { --bg: #14171c; --panel: rgba(18, 21, 26, .88); --line: #2b313a; --text: #d9dee6; --dim: #8a94a3; --accent: #f2b01b; --ok: #3ecf8e; --warn: #f0b429; --bad: #ef4444; --info: #4aa3ff; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 12px/1.45 ui-monospace, "Cascadia Mono", Consolas, monospace; overflow: hidden; }
+  canvas { display: block; }
+  .panel { position: fixed; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; backdrop-filter: blur(6px); }
+  #hud { top: 12px; left: 12px; width: 392px; max-height: calc(100vh - 96px); overflow-y: auto; }
+  #side { top: 12px; right: 12px; width: 318px; max-height: calc(100vh - 96px); overflow-y: auto; }
+  #ctl { bottom: 12px; left: 12px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; max-width: calc(100vw - 24px); }
+  h1 { font-size: 13px; margin: 0 0 2px; letter-spacing: .04em; }
+  h2 { font-size: 10px; margin: 12px 0 5px; color: var(--dim); text-transform: uppercase; letter-spacing: .1em; font-weight: 600; }
+  .sub { color: var(--dim); }
+  .row { display: flex; justify-content: space-between; gap: 8px; white-space: nowrap; }
+  .row span:last-child { overflow: hidden; text-overflow: ellipsis; text-align: right; }
+  table { border-collapse: collapse; width: 100%; }
+  td { padding: 1px 6px 1px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 210px; vertical-align: top; }
+  td.k { color: var(--accent); font-weight: 700; width: 38px; }
+  td.r { text-align: right; padding-right: 0; }
+  .dim { color: var(--dim); } .okc { color: var(--ok); } .warnc { color: var(--warn); } .badc { color: var(--bad); }
+  .bar { position: relative; height: 6px; background: #252a32; border-radius: 3px; overflow: hidden; }
+  .bar i { position: absolute; top: 0; bottom: 0; left: 0; background: var(--ok); border-radius: 3px; }
+  .bar.warn i { background: var(--warn); } .bar.bad i { background: var(--bad); }
+  .m { display: grid; grid-template-columns: 118px 1fr 104px; gap: 7px; align-items: center; height: 17px; }
+  .m span:last-child { text-align: right; }
+  .lamp { display: inline-flex; align-items: center; gap: 7px; }
+  .lamp::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); flex: none; }
+  .lamp.bad::before { background: var(--bad); }
+  button, select, input { font: inherit; color: var(--text); background: #232830; border: 1px solid var(--line); border-radius: 5px; padding: 5px 9px; }
+  button { cursor: pointer; } button:hover { border-color: #4a5462; }
+  button.on { background: var(--accent); border-color: var(--accent); color: #14171c; font-weight: 700; }
+  input[type=number] { width: 44px; padding: 4px 5px; }
+  input[type=range] { padding: 0; width: 110px; vertical-align: middle; }
+  .sep { width: 1px; height: 18px; background: var(--line); margin: 0 4px; }
+  .grid5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; text-align: center; margin: 4px 0 6px; }
+  .sw { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+  #msg { color: var(--warn); min-height: 16px; white-space: normal; }
+  @media (max-width: 1100px) { #side { display: none; } }
+  @media (max-width: 720px) { #hud { width: calc(100vw - 24px); max-height: 44vh; } }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<div id="hud" class="panel">
+  <h1>INTEGRATED WAREHOUSE</h1>
+  <div class="sub">ASRS A–E · robot AMRs · 4 palletizers · belly wrapper · forklift fleet</div>
+
+  <h2>Flow</h2>
+  <div class="row"><span>Sim time</span><span id="time">–</span></div>
+  <div class="row"><span>Orders open / building / done</span><span id="kOrders">–</span></div>
+  <div class="row"><span>Layers delivered · per hour</span><span id="kLayers">–</span></div>
+  <div class="row"><span>Pallets built / wrapped / stored / shipped</span><span id="kPallets">–</span></div>
+  <div class="row"><span>Boxes rack / in flow / shipped</span><span id="kBoxes">–</span></div>
+  <div class="row"><span>Empty stacks E1 / E2 / E3</span><span id="kEmpty">–</span></div>
+  <div class="row"><span class="lamp" id="lMon">Safety monitors</span><span id="mon">–</span></div>
+  <div class="row"><span>Smallest gap between vehicles</span><span id="kGap">–</span></div>
+
+  <h2>ASRS row ports</h2>
+  <table id="tLanes"></table>
+  <h2>Palletizing cells</h2>
+  <table id="tCells"></table>
+  <h2>Robot AMRs</h2>
+  <table id="tRobots"></table>
+  <h2>Forklifts</h2>
+  <table id="tForks"></table>
+  <h2>Wrapper</h2>
+  <div class="row"><span id="wPhase">–</span><span id="wInfo">–</span></div>
+
+  <h2>Inspect <select id="pick"></select></h2>
+  <div id="detail"></div>
+</div>
+
+<div id="side" class="panel">
+  <h1>ORDERS</h1>
+  <div class="sub">one SKU per layer · heaviest layer at the bottom · boxes ≤ 1.056 m</div>
+  <h2>New order: layers per SKU</h2>
+  <div class="grid5" id="skuHead"></div>
+  <div class="grid5" id="skuIn"></div>
+  <div class="row"><span id="oHeight" class="dim">0 layers · 0.000 m</span><span><button id="oAdd">Add order</button></span></div>
+  <div id="msg"></div>
+  <div class="row"><span>Automatic orders</span><span><button id="oAuto" class="on">On</button></span></div>
+  <h2>Queue</h2>
+  <table id="tOrders"></table>
+  <h2>Storage</h2>
+  <table id="tStore"></table>
+
+  <h2>Fleet (applies on restart)</h2>
+  <div class="row"><span>Forklifts <b id="nF">3</b></span><span><input type="range" id="sF" min="1" max="6" value="3"></span></div>
+  <div class="row"><span>Robot AMRs <b id="nM">2</b></span><span><input type="range" id="sM" min="1" max="2" value="2"></span></div>
+  <div class="row"><span class="dim">Restart with this fleet</span><span><button id="reset">Restart</button></span></div>
+</div>
+
+<div id="ctl" class="panel">
+  <button id="pause">Pause</button>
+  <span class="sep"></span>
+  <span class="sub">Speed</span>
+  <button data-speed="1">1×</button>
+  <button data-speed="4" class="on">4×</button>
+  <button data-speed="10">10×</button>
+  <button data-speed="30">30×</button>
+  <span class="sep"></span>
+  <span class="sub">View</span>
+  <button data-view="overview">Overview</button>
+  <button data-view="top">Top</button>
+  <button data-view="asrs">ASRS</button>
+  <button data-view="cells">Palletizers</button>
+  <button data-view="wrap">Wrapper</button>
+  <button data-view="store">Storage</button>
+  <button data-view="follow">Follow</button>
+  <span class="sep"></span>
+  <button id="panel" class="on">Panels</button>
+  <button id="paths" class="on">Roads</button>
+  <button id="claims">Claims</button>
+  <button id="labels" class="on">Labels</button>
+</div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

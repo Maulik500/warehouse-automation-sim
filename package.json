@@ -1,0 +1,19 @@
+{
+  "name": "palletizing-sim",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "node test/verify.mjs",
+    "verify:asrs": "node asrs/test/verify.mjs",
+    "verify:amr": "node amr/test/verify.mjs",
+    "export:asrs": "node asrs/tools/export-blender.mjs",
+    "export:amr": "node amr/tools/export-blender.mjs",
+    "serve": "node serve.mjs",
+    "verify:wrapper": "node wrapper/test/verify.mjs",
+    "export:wrapper": "node wrapper/tools/export-blender.mjs",
+    "verify:mobman": "node mobman/test/verify.mjs",
+    "export:mobman": "node mobman/tools/export-blender.mjs",
+    "verify:warehouse": "node warehouse/test/verify.mjs",
+    "export:warehouse": "node warehouse/tools/export-blender.mjs"
+  }
+}

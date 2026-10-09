@@ -1,0 +1,11 @@
+import { readFileSync } from 'node:fs';
+import { fk } from '../../js/kinematics.js';
+import * as A from '../../mobman/js/arm.js';
+import * as B from '../../mobman/js/base.js';
+import * as K from '../../amr/js/kinematics.js';
+import { PLACE, toG } from '../js/config.js';
+const P = JSON.parse(readFileSync(new URL('../blender/warehouse_params.json', import.meta.url))), i = +process.argv[2];
+const q = P.frames.robots[i].slice(0, 6), t = fk(q).tcp, m = P.frames.mm[i], f = P.frames.forks[i];
+console.log('R1_TCP', toG(PLACE.pal[0], ...t).map((v) => v.toFixed(4)).join(' '));
+console.log('M1_TCP', B.armToWorld({ x: m[0], y: m[1], th: m[2] }, A.fk(m.slice(5, 11)).tcp).map((v) => v.toFixed(4)).join(' '));
+console.log('F1_TCP', K.tcpWorld({ x: f[0], y: f[1], th: f[2] }, f[4], f[5], f[6]).map((v) => v.toFixed(4)).join(' '));
