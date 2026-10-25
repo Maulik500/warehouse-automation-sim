@@ -19,6 +19,7 @@ verified simulation; nothing is keyframed by hand.
 | [Warehouse_Tour.mp4](downloads/Warehouse_Tour.mp4) | the tour as a 1080p video (50 MB) |
 | [Warehouse_Tour.html](downloads/Warehouse_Tour.html) | the tour as one file — opens by double-click, works offline (4 MB) |
 | [Warehouse_Live.html](downloads/Warehouse_Live.html) | the live engineering simulation as one offline file (1.4 MB) |
+| [Warehouse_Blender.mp4](downloads/Warehouse_Blender.mp4) | Blender (EEVEE) render of the same recorded run, 30 s orbit at 720p (6 MB) |
 
 | Simulation | Live | Specification |
 |---|---|---|

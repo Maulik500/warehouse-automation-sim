@@ -7,3 +7,4 @@ __pycache__/
 _ref/
 warehouse/dist/
 warehouse/capture/
+_private/
