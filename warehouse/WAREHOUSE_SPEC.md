@@ -852,11 +852,18 @@ for the palletizing robots) — there is no mesh-level check between machines.
 | Floor stations and the wrapper adapter (extends the verified wrapper) | [js/stations.js](js/stations.js) | — |
 | Orders, layer sequencing, forklift jobs | [js/wes.js](js/wes.js) | — |
 | The world: one clock, fleet monitor, raw checks, bookkeeping | [js/sim.js](js/sim.js) | — |
-| three.js view | [index.html](index.html), [js/main.js](js/main.js) | `node serve.mjs 5178` in the repository root, then open `http://localhost:5178/warehouse/index.html` |
+| 3D scene, shared by both pages (state in, picture out) | [js/view.js](js/view.js) | — |
+| Live engineering view (HUD, orders, fleet) | [index.html](index.html), [js/main.js](js/main.js) | `node serve.mjs 5178` in the repository root, then open `http://localhost:5178/warehouse/index.html` |
+| Snapshot of the world, recorder and player | [js/state.js](js/state.js) | — |
+| Guided tour: steps found in the recorded event log, directed cameras, captions, engineering panel | [present.html](present.html), [js/present.js](js/present.js), [js/tour.js](js/tour.js) | `http://localhost:5178/warehouse/present.html` |
+| Recording (40 min at 15 fps, 2 MB) | [tools/record.mjs](tools/record.mjs) → `rec/clip.json.gz` | `npm run record:warehouse` |
+| Single offline files (three.js r160 inlined from [vendor/](vendor/README.md)) | [tools/build-offline.mjs](tools/build-offline.mjs) → `dist/Warehouse_Tour.html`, `dist/Warehouse_Live.html` | `npm run build:offline` |
+| Video: headless Chrome over the DevTools protocol, frame-exact, piped to ffmpeg | [tools/capture.mjs](tools/capture.mjs) → `dist/Warehouse_Tour.mp4` | `npm run capture:warehouse` (`STILLS=steps` for one still per step) |
 | Verification | [test/verify.mjs](test/verify.mjs), [test/layoutcheck.mjs](test/layoutcheck.mjs) | `npm run verify:warehouse` (add `-- --quick` for one 1 h run, `-- --cells` to re-run the five cell suites first) |
 | Trajectory export for Blender (240 s at 12 fps, after a 1500 s warm-up) | [tools/export-blender.mjs](tools/export-blender.mjs) → `blender/warehouse_params.json` | `npm run export:warehouse` |
 | Blender scene builder (one empty per joint frame, keyframed) | [blender/build_warehouse.py](blender/build_warehouse.py) | run in Blender's Scripting tab, or `blender -b -P build_warehouse.py -- --save warehouse.blend` |
 | Built Blender scene | `blender/warehouse.blend` | open in Blender 5.2 and press play |
+| Blender render (sun, sky, orbiting camera, EEVEE) | same script | `blender -b -P build_warehouse.py -- --render <frames dir> --frames 1-720`, then encode with ffmpeg |
 
 Changes to the five cells, all behaviour-neutral for the cells themselves (their suites pass
 unchanged): `asrs/js/sim.js` exports its `Aisle` class; `wrapper/js/sim.js` has two hooks

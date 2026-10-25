@@ -4,3 +4,6 @@ __pycache__/
 *.blend1
 *.log
 .claude/
+_ref/
+warehouse/dist/
+warehouse/capture/

@@ -425,6 +425,42 @@ for ob, m in movers:
 scene.frame_set(1)
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
+
+# ---------- presentation setup: sun, sky, an orbiting camera, EEVEE, H.264 ----------
+def presentation(out_path, frames=None, res=(1280, 720)):
+    sc = bpy.context.scene
+    for o in list(col.objects):
+        if o.name.startswith(("REN_", )):
+            bpy.data.objects.remove(o, do_unlink=True)
+    sun_d = bpy.data.lights.new("REN_sun", "SUN"); sun_d.energy = 3.5; sun_d.angle = math.radians(2)
+    sun = bpy.data.objects.new("REN_sun", sun_d); col.objects.link(sun); sun.rotation_euler = (math.radians(52), 0, math.radians(35))
+    w = sc.world or bpy.data.worlds.new("World"); sc.world = w; w.use_nodes = True
+    bg = w.node_tree.nodes.get("Background"); bg.inputs[0].default_value = (0.74, 0.77, 0.76, 1); bg.inputs[1].default_value = 0.9
+    cam_d = bpy.data.cameras.new("REN_cam"); cam_d.lens = 32
+    cam = bpy.data.objects.new("REN_cam", cam_d); col.objects.link(cam); sc.camera = cam
+    tgt = empty("REN_target", loc=(31.0, 23.0, 1.0))
+    con = cam.constraints.new("TRACK_TO"); con.target = tgt; con.track_axis = "TRACK_NEGATIVE_Z"; con.up_axis = "UP_Y"
+    f0, f1 = frames or (sc.frame_start, sc.frame_end)
+    for f, ang in ((f0, -2.05), (f1, -1.05)):  # slow orbit from south-west to south-east
+        cam.location = (31.0 + 40 * math.cos(ang), 23.0 + 40 * math.sin(ang), 24.0)
+        cam.keyframe_insert("location", frame=f)
+    sc.frame_start, sc.frame_end = f0, f1
+    try:
+        sc.render.engine = "BLENDER_EEVEE_NEXT"
+    except Exception:
+        sc.render.engine = "BLENDER_EEVEE"
+    sc.render.resolution_x, sc.render.resolution_y, sc.render.resolution_percentage = res[0], res[1], 100
+    sc.view_settings.view_transform = "AgX"
+    # frames as JPEG (encode with ffmpeg afterwards: the video output API differs between Blender versions)
+    sc.render.image_settings.file_format = "JPEG"
+    sc.render.image_settings.quality = 92
+    sc.render.filepath = os.path.join(out_path, "frame_")
+
+
+if "--render" in argv:
+    rng = argv[argv.index("--frames") + 1].split("-") if "--frames" in argv else None
+    presentation(os.path.abspath(argv[argv.index("--render") + 1]), (int(rng[0]), int(rng[1])) if rng else None)
+    bpy.ops.render.render(animation=True)
 if "--save" in argv:
     bpy.ops.wm.save_as_mainfile(filepath=os.path.abspath(argv[argv.index("--save") + 1]))
 if "--glb" in argv:

@@ -7,9 +7,22 @@ has a verification suite that runs in Node.
 
 Nothing needs to be installed to watch them: open the links below.
 
+## Start here: the guided tour
+
+**[▶ Guided tour of the integrated warehouse](https://maulik500.github.io/warehouse-automation-sim/warehouse/present.html)** — a 3-minute directed
+walk-through with captions, labels, live counters and an engineering panel (joint angles and
+singularity margins of the machine in focus). Every motion comes from a recorded run of the
+verified simulation; nothing is keyframed by hand.
+
+| Download | What it is |
+|---|---|
+| [Warehouse_Tour.mp4](downloads/Warehouse_Tour.mp4) | the tour as a 1080p video (50 MB) |
+| [Warehouse_Tour.html](downloads/Warehouse_Tour.html) | the tour as one file — opens by double-click, works offline (4 MB) |
+| [Warehouse_Live.html](downloads/Warehouse_Live.html) | the live engineering simulation as one offline file (1.4 MB) |
+
 | Simulation | Live | Specification |
 |---|---|---|
-| **Integrated warehouse** — ASRS, robot AMRs, 4 palletizers, belly wrapper, forklift fleet | [open](https://maulik500.github.io/warehouse-automation-sim/warehouse/) | [WAREHOUSE_SPEC.md](warehouse/WAREHOUSE_SPEC.md) |
+| **Integrated warehouse** — ASRS, robot AMRs, 4 palletizers, belly wrapper, forklift fleet | [live](https://maulik500.github.io/warehouse-automation-sim/warehouse/) · [tour](https://maulik500.github.io/warehouse-automation-sim/warehouse/present.html) | [WAREHOUSE_SPEC.md](warehouse/WAREHOUSE_SPEC.md) |
 | Palletizing robot — 6-axis arm, vacuum gripper, pick from a moving belt | [open](https://maulik500.github.io/warehouse-automation-sim/) | [ROBOT_SPEC.md](ROBOT_SPEC.md) |
 | ASRS — 3 stacker cranes, 5 rack rows, telescopic forks | [open](https://maulik500.github.io/warehouse-automation-sim/asrs/) | [ASRS_SPEC.md](asrs/ASRS_SPEC.md) |
 | Forklift AMR — tricycle fork truck, mast, pallet handling | [open](https://maulik500.github.io/warehouse-automation-sim/amr/) | [AMR_SPEC.md](amr/AMR_SPEC.md) |
@@ -50,6 +63,18 @@ npm run verify:mobman
 npm run verify:warehouse  # about 15 minutes; add `-- --quick` for a short run
 ```
 
+## Presentation, offline files and video
+
+```bash
+npm run record:warehouse     # 40 min of the run, 15 fps -> warehouse/rec/clip.json.gz (2 MB)
+npm run build:offline        # -> warehouse/dist/Warehouse_Tour.html, Warehouse_Live.html
+npm run capture:warehouse    # -> warehouse/dist/Warehouse_Tour.mp4 (headless Chrome + ffmpeg)
+```
+
+The tour's steps are found in the recorded event log (crane retrieval, AMR dock, layer pick,
+transfer, palletizing, forklift pick, wrapping, storage, empties, replenishment), so a new
+recording gives a new, still accurate tour.
+
 ## Blender
 
 Each cell can export its simulated trajectory (`npm run export:<cell>`) and has a Python script
@@ -60,5 +85,6 @@ depalletizer and the integrated warehouse (Blender 5.2).
 ## Scope
 
 These are kinematic simulations: motion is bounded by speed, acceleration and jerk limits, not
-by dynamics. Machines are generic, representative of their class, and not models of any
-vendor's product. Each specification lists what it does not model.
+by dynamics. Machines are representative of their class (the palletizing robot has the link
+lengths of a KUKA KR 120 R2700 class arm, the mobile arm the geometry of a UR20 class arm); they
+are not vendor models. Each specification lists what it does not model.

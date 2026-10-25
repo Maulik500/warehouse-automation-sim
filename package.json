@@ -14,6 +14,9 @@
     "verify:mobman": "node mobman/test/verify.mjs",
     "export:mobman": "node mobman/tools/export-blender.mjs",
     "verify:warehouse": "node warehouse/test/verify.mjs",
-    "export:warehouse": "node warehouse/tools/export-blender.mjs"
+    "export:warehouse": "node warehouse/tools/export-blender.mjs",
+    "record:warehouse": "node warehouse/tools/record.mjs",
+    "build:offline": "node warehouse/tools/build-offline.mjs",
+    "capture:warehouse": "node warehouse/tools/capture.mjs"
   }
 }
